@@ -1,0 +1,22 @@
+# requirements.txt
+
+annotated-types==0.7.0
+certifi==2024.6.2
+charset-normalizer==3.3.2
+click==8.1.7
+click-default-group==1.2.4
+docformatter==1.7.5
+idna==3.7
+Jinja2==3.1.4
+lxml==5.2.2
+MarkupSafe==2.1.5
+pydantic==2.7.4
+pydantic_core==2.18.4
+requests==2.32.3
+ruff==0.4.8
+toposort==1.10
+typing_extensions==4.12.2
+untokenize==0.1.1
+urllib3==2.2.1
+xsdata==24.5
+xsdata_pydantic==24.5

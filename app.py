@@ -2,6 +2,7 @@ import streamlit as st
 import requests
 
 dpe_id = '2369E3640698P'
+dpe_id = '2344E0308327N'
 dpe_id = st.text_input("Numéro de DPE", value=dpe_id)
 
 b = st.button("Obtenir")
@@ -25,21 +26,58 @@ if __name__ == "__main__":
         'Accept': 'text/xml',
     }
 
-    def download_1(url):
+    def download(url):
+        
         # https://stackoverflow.com/questions/2795331/python-download-without-supplying-a-filename
         from urllib.request import urlopen, urlretrieve
-        import cgi
+        from lxml import etree
+        import pyrfc6266
+        
+        data = urlopen(url)
+        info = data.info()
+        filename = pyrfc6266.parse_filename(info['Content-Disposition'])
+        xmlstring = data.read()
+        et = etree.ElementTree(etree.fromstring(xmlstring))
+        # et.write('./tmp/output.xml', pretty_print=True)
+        root = et.getroot()
+        for child in root:
+            if child.tag in ["numero_dpe", "statut"] :
+                root.remove(child)
+            #     continue
+            # if True:# TODO: do your check here!
+            #     root.remove(child)
+        for child in root:
+            print(child)
+        urlretrieve(url, './tmp/output.xml')
+        return (xmlstring, et)
+        pass
 
-        remotefile = urlopen(url)
-        contentdisposition = remotefile.info()['Content-Disposition']
-        _, params = cgi.parse_header(contentdisposition)
-        filename = params["filename"]
-        urlretrieve(url, filename)
+    from bs4 import BeautifulSoup
+       
+    xmlstring = download(url)
+    soup = BeautifulSoup(xmlstring, 'xml')
+    r1 = soup.find("numero_dpe")
+    r2 = soup.find("statut")
+    print(r1)
+    print(r2)
 
-    download_1(url)
+    with open('tmp/pretty.xml', "w") as f:
+        f.write(soup.prettify())
+        f.close()
 
-    response = requests.get(url, allow_redirects=True)
-    print(response.headers.get('Content-Disposition'))
+    
+    from models_dataclass import Dpe
+    from xsdata.formats.dataclass.parsers import XmlParser
+
+    parser = XmlParser()
+    result = parser.parse("tmp/2344E0308327N.xml", Dpe)
+
+    murs = result.logement.enveloppe.mur_collection.mur
+    for mur in murs:
+        print(mur.donnee_entree.surface_paroi_totale)
+
+
+
     # print(f"url : `{url}`")
     # print(response.content)
 
