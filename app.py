@@ -21,6 +21,7 @@ if b:
 if __name__ == "__main__":
 
     dpe_id = '2369E3640698P'
+    dpe_id = '2344E0308327N'
     url = f"https://observatoire-dpe-audit.ademe.fr/pub/dpe/{dpe_id}/xml"
     headers = {
         'Accept': 'text/xml',
@@ -48,13 +49,13 @@ if __name__ == "__main__":
             #     root.remove(child)
         for child in root:
             print(child)
-        urlretrieve(url, './tmp/output.xml')
+        urlretrieve(url, f'./tmp/{dpe_id}.xml')
         return (xmlstring, et)
         pass
 
     from bs4 import BeautifulSoup
        
-    xmlstring = download(url)
+    xmlstring, et = download(url)
     soup = BeautifulSoup(xmlstring, 'xml')
     r1 = soup.find("numero_dpe")
     r2 = soup.find("statut")
@@ -70,7 +71,7 @@ if __name__ == "__main__":
     from xsdata.formats.dataclass.parsers import XmlParser
 
     parser = XmlParser()
-    result = parser.parse("tmp/2344E0308327N.xml", Dpe)
+    result = parser.parse(f'./tmp/{dpe_id}.xml', Dpe)
 
     murs = result.logement.enveloppe.mur_collection.mur
     for mur in murs:
