@@ -893,6 +893,20 @@ class Dpe:
     class Meta:
         name = "dpe"
 
+    numero_dpe:str = field(
+        default=None,
+        metadata={
+            "type": "Element",
+            "required": True,
+        },
+    )
+    statut:str = field(
+        default=None,
+        metadata={
+            "type": "Element",
+            "required": True,
+        },
+    )
     administratif: Optional[Administratif] = field(
         default=None,
         metadata={
