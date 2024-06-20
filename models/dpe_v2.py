@@ -11,7 +11,6 @@ class AdministratifEnumVersionId(Enum):
     VALUE_2 = "2"
     VALUE_2_1 = "2.1"
     VALUE_2_2 = "2.2"
-    VALUE_2_3 = "2.3"
 
 
 class CaracteristiqueGeneraleEnumUsageFonctionnelBatimentId(Enum):
@@ -253,30 +252,14 @@ class TAdresseBanType(Enum):
 class TAdresse:
     """
     Attributes:
-        adresse_brut: libéllé l'adresse postale du bien saisi par le
-            diagnostiqueur sans le code postal ni la commune (FORMAT
-            ATTENDU : Numéro de l’adresse dans la voie + Indice de
-            répétition associé au numéro (par exemple bis, a…) + Nom de
-            la voie en minuscules accentuées)
+        adresse_brut: champs texte brute de l'adresse saisi par le
+            diagnostiqueur
         code_postal_brut: code postal de l'adresse brute saisie par le
             diagnostiqueur
         nom_commune_brut: nom de commune brute saisie par le
             diagnostiqueur
-        label_brut: libellé complet de l'adresse postale du bien saisi
-            par le diagnostiqueur (FORMAT ATTENDU : Numéro de l’adresse
-            dans la voie + Indice de répétition associé au numéro (par
-            exemple bis, a…) + Nom de la voie en minuscules accentuées +
-            Code postal du bureau de distribution de la voie + Nom
-            officiel de la commune actuelle
-        label_brut_avec_complement: libellé complet d'adresse complète
-            qui est l'adresse postale du bien précédé par l'ensemble des
-            compléments d'adresses nécessaires à la bonne localisation
-            du bien saisi par le diagnostiqueur (FORMAT ATTENDU :
-            Compléments d'adresses + Numéro de l’adresse dans la voie +
-            Indice de répétition associé au numéro (par exemple bis, a…)
-            + Nom de la voie en minuscules accentuées + Code postal du
-            bureau de distribution de la voie + Nom officiel de la
-            commune actuelle)
+        label_brut: label complet de l'adresse saisie par le
+            diagnostiqueur (adresse + code postal + nom commune)
         enum_statut_geocodage_ban_id: statut de l'appareillement à la
             BAN de l'adresse
         ban_date_appel: date d'appel à la ban
@@ -345,15 +328,6 @@ class TAdresse:
             "type": "Element",
             "required": True,
             "max_length": 255,
-        },
-    )
-    label_brut_avec_complement: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Element",
-            "min_length": 1,
-            "max_length": 255,
-            "nillable": True,
         },
     )
     enum_statut_geocodage_ban_id: Optional[int] = field(
@@ -508,9 +482,6 @@ class Administratif:
     Attributes:
         dpe_a_remplacer: numéro du DPE à remplacer dans le cas d'une
             opération de remplacement du DPE
-        reference_interne_projet: référence interne logiciel du projet.
-            Mis en place pour réidentification du projet en cas d'import
-            depuis l'observatoire
         motif_remplacement: motif du remplacement du DPE : texte libre
         dpe_immeuble_associe: numéro du DPE immeuble associé au DPE
             logement utilisant la méthode de génération des DPE à
@@ -543,14 +514,6 @@ class Administratif:
         metadata={
             "type": "Element",
             "pattern": r"[2-3][0-9]{2}[0-9A-B][ETN][0-9]{7}[A-Z]",
-            "nillable": True,
-        },
-    )
-    reference_interne_projet: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Element",
-            "max_length": 255,
             "nillable": True,
         },
     )
@@ -755,14 +718,6 @@ class Administratif:
         """
         Attributes:
             invar_logement: invariant fiscal du logement (10 caractères)
-                : OBSOLETE, remplacé par numero_fiscal_local
-            numero_fiscal_local: numero fiscal du logement (12
-                caractères). Cette information peut être récupérée sur
-                la plateforme gérer mes biens immobiliers du site
-                particulier des impots. (REMPLACE invar_logement)
-            id_batiment_rnb: identifiant batiment du Référentiel
-                National des Bâtiments (RNB) à venir sur les bâtiments
-                en France (https://beta.gouv.fr/startups/bat-id.html)
             rpls_log_id: identifiant Repertoire Logement Social (RPLS)
                 du logement (dans le cas d'un propriétaire bailleur
                 social)
@@ -780,27 +735,6 @@ class Administratif:
             default=None,
             metadata={
                 "type": "Element",
-                "length": 10,
-                "pattern": r"[0-9][0-9A-B][0-9]{8}",
-                "nillable": True,
-            },
-        )
-        numero_fiscal_local: Optional[str] = field(
-            default=None,
-            metadata={
-                "type": "Element",
-                "min_length": 10,
-                "max_length": 12,
-                "pattern": r"[0-9][0-9A-B][0-9]{8}|[0-9][0-9A-B][0-9]{10}",
-                "nillable": True,
-            },
-        )
-        id_batiment_rnb: Optional[str] = field(
-            default=None,
-            metadata={
-                "type": "Element",
-                "length": 12,
-                "pattern": r"[123456789ABCDEFGHJKMNPQRSTVWXYZ]{12}",
                 "nillable": True,
             },
         )
@@ -826,8 +760,6 @@ class Administratif:
             default=None,
             metadata={
                 "type": "Element",
-                "length": 14,
-                "pattern": r"[0-9]{1}[A-Z0-9]{1}[0-9]{3}[0-9]{3}[A-Z0-9]{2}[0-9]{4}",
                 "nillable": True,
             },
         )
@@ -877,7 +809,7 @@ class Administratif:
 
 @dataclass
 class Dpe:
-    """Version V8.0.4 - 2023-05-16 : version corrective de janvier 2023
+    """Version V7.1.0 - 2022-09-28 : version compatible audit énergétique
 
     Attributes:
         administratif:
@@ -1027,14 +959,11 @@ class Dpe:
             class LogementVisite:
                 """
                 Attributes:
-                    description: description du logement visité dans le
-                        cadre d'un DPE immeuble
+                    description: description du logement visité
                     enum_position_etage_logement_id: position du
-                        logement visité dans l'immeuble en terme d'étage
+                        logement dans l'immeuble en terme d'étage
                     enum_typologie_logement_id: typologie de logement
-                        visité (T1… T6)
-                    surface_habitable_logement: surface habitable du
-                        logement visité dans le cadre d'un DPE immeuble
+                        (T1… T6)
                 """
 
                 description: Optional[str] = field(
@@ -1060,14 +989,6 @@ class Dpe:
                         "required": True,
                         "min_inclusive": 1,
                         "max_inclusive": 7,
-                    },
-                )
-                surface_habitable_logement: Optional[float] = field(
-                    default=None,
-                    metadata={
-                        "type": "Element",
-                        "min_exclusive": 0.0,
-                        "nillable": True,
                     },
                 )
 
@@ -1143,7 +1064,7 @@ class Dpe:
                     "type": "Element",
                     "required": True,
                     "min_inclusive": 1,
-                    "max_inclusive": 10,
+                    "max_inclusive": 9,
                 },
             )
 
@@ -1577,9 +1498,6 @@ class Dpe:
                 enum_periode_construction_id: période de construction
                 enum_methode_application_dpe_log_id: méthode
                     d'application du DPE logement
-                enum_calcul_echantillonnage_id: quel type
-                    d'échantillonnage a été appliqué pour le calcul du
-                    DPE immeuble (dans le cas d'un DPE immeuble)
                 surface_habitable_logement: surface habitable du
                     logement renseignée sauf dans le cas du dpe à
                     l'immeuble
@@ -1633,15 +1551,6 @@ class Dpe:
                     "required": True,
                     "min_inclusive": 1,
                     "max_inclusive": 40,
-                },
-            )
-            enum_calcul_echantillonnage_id: Optional[int] = field(
-                default=None,
-                metadata={
-                    "type": "Element",
-                    "min_inclusive": 1,
-                    "max_inclusive": 3,
-                    "nillable": True,
                 },
             )
             surface_habitable_logement: Optional[float] = field(
@@ -1713,7 +1622,6 @@ class Dpe:
             """
             Attributes:
                 enum_zone_climatique_id: zone climatique du logement
-                altitude: altitude du logement (m)
                 enum_classe_altitude_id: classe d'altitude du logement
                 batiment_materiaux_anciens: est ce que le bâtiment est
                     principalement composé de matériaux anciens pour ses
@@ -1727,13 +1635,6 @@ class Dpe:
                     "required": True,
                     "min_inclusive": 1,
                     "max_inclusive": 8,
-                },
-            )
-            altitude: Optional[float] = field(
-                default=None,
-                metadata={
-                    "type": "Element",
-                    "nillable": True,
                 },
             )
             enum_classe_altitude_id: Optional[int] = field(
@@ -1965,16 +1866,6 @@ class Dpe:
                                 enduit isolant (Renduit=0,7m².K.W-1) 0 :
                                 non 1 : oui. (Attention ! nom de
                                 propriété pas tout à fait explicite)
-                                OBSOLETE -&gt; remplacé par
-                                enduit_isolant_paroi_ancienne
-                            enduit_isolant_paroi_ancienne: est ce qu'un
-                                enduit isolant est présent sur la paroi
-                                si celle-ci est une paroi ancienne
-                                (pierres, terre, mur à colombage, brique
-                                ancienne)(Renduit=0,7m².K.W-1) 0 : non 1
-                                : oui. (renommage de la propriété
-                                paroi_ancienne -&gt;
-                                enduit_isolant_paroi_ancienne)
                             umur_saisi: Coefficient de transmission
                                 thermique du mur saisi en direct par le
                                 diagnostiqueur(à justifier)
@@ -2011,8 +1902,8 @@ class Dpe:
                             default=None,
                             metadata={
                                 "type": "Element",
-                                "required": True,
                                 "max_length": 255,
+                                "nillable": True,
                             },
                         )
                         reference_lnc: Optional[str] = field(
@@ -2139,17 +2030,8 @@ class Dpe:
                             default=None,
                             metadata={
                                 "type": "Element",
-                                "nillable": True,
+                                "required": True,
                             },
-                        )
-                        enduit_isolant_paroi_ancienne: Optional[SOuiNon] = (
-                            field(
-                                default=None,
-                                metadata={
-                                    "type": "Element",
-                                    "nillable": True,
-                                },
-                            )
                         )
                         umur_saisi: Optional[float] = field(
                             default=None,
@@ -2388,8 +2270,8 @@ class Dpe:
                             default=None,
                             metadata={
                                 "type": "Element",
-                                "required": True,
                                 "max_length": 255,
+                                "nillable": True,
                             },
                         )
                         reference_lnc: Optional[str] = field(
@@ -2740,8 +2622,8 @@ class Dpe:
                             default=None,
                             metadata={
                                 "type": "Element",
-                                "required": True,
                                 "max_length": 255,
+                                "nillable": True,
                             },
                         )
                         reference_lnc: Optional[str] = field(
@@ -2969,15 +2851,6 @@ class Dpe:
                             "required": True,
                         },
                     )
-                    baie_vitree_double_fenetre: Optional[
-                        "Dpe.Logement.Enveloppe.BaieVitreeCollection.BaieVitree.BaieVitreeDoubleFenetre"
-                    ] = field(
-                        default=None,
-                        metadata={
-                            "type": "Element",
-                            "nillable": True,
-                        },
-                    )
 
                     @dataclass
                     class DonneeEntree:
@@ -3100,12 +2973,6 @@ class Dpe:
                             enum_type_fermeture_id: type de fermeture
                                 associé à la baie (volets/persiennes
                                 etc..)
-                            presence_protection_solaire_hors_fermeture:
-                                y a-t-il une protection solaire qui
-                                n'est pas considérée comme une fermeture
-                                (R=0 pour le calcul de Ujn) mais qui est
-                                prise en compte pour le calcul du
-                                confort d'été.
                             ujn_saisi: coefficient de transmission
                                 thermique de la baie avec ses protection
                                 solaires saisi directement (nécessite
@@ -3113,9 +2980,6 @@ class Dpe:
                             presence_retour_isolation: y a-t-il un
                                 retour d'isolant de la paroi opaque sur
                                 la baie 0 : non 1 : oui
-                            presence_joint: y a-t-il présence de joints
-                                sur la baie (utilisé pour le calcul de
-                                la perméabilité) 0 : non 1 : oui
                             largeur_dormant: largeur du dormant de la
                                 baie (cm)
                             tv_sw_id: id de la ligne de la table
@@ -3147,8 +3011,8 @@ class Dpe:
                             default=None,
                             metadata={
                                 "type": "Element",
-                                "required": True,
                                 "max_length": 255,
+                                "nillable": True,
                             },
                         )
                         reference_paroi: Optional[str] = field(
@@ -3400,15 +3264,6 @@ class Dpe:
                                 "max_inclusive": 8,
                             },
                         )
-                        presence_protection_solaire_hors_fermeture: Optional[
-                            SOuiNon
-                        ] = field(
-                            default=None,
-                            metadata={
-                                "type": "Element",
-                                "nillable": True,
-                            },
-                        )
                         ujn_saisi: Optional[float] = field(
                             default=None,
                             metadata={
@@ -3422,13 +3277,6 @@ class Dpe:
                             metadata={
                                 "type": "Element",
                                 "required": True,
-                            },
-                        )
-                        presence_joint: Optional[SOuiNon] = field(
-                            default=None,
-                            metadata={
-                                "type": "Element",
-                                "nillable": True,
                             },
                         )
                         largeur_dormant: Optional[float] = field(
@@ -3637,250 +3485,6 @@ class Dpe:
                             },
                         )
 
-                    @dataclass
-                    class BaieVitreeDoubleFenetre:
-                        donnee_entree: Optional[
-                            "Dpe.Logement.Enveloppe.BaieVitreeCollection.BaieVitree.BaieVitreeDoubleFenetre.DonneeEntree"
-                        ] = field(
-                            default=None,
-                            metadata={
-                                "type": "Element",
-                                "required": True,
-                            },
-                        )
-                        donnee_intermediaire: Optional[
-                            "Dpe.Logement.Enveloppe.BaieVitreeCollection.BaieVitree.BaieVitreeDoubleFenetre.DonneeIntermediaire"
-                        ] = field(
-                            default=None,
-                            metadata={
-                                "type": "Element",
-                                "required": True,
-                            },
-                        )
-
-                        @dataclass
-                        class DonneeEntree:
-                            """
-                            Attributes:
-                                tv_ug_id: id de la ligne de la table
-                                    utilisée pour le calcul du
-                                    coefficent de transmission thermique
-                                    du vitrage ug
-                                enum_type_vitrage_id: type de vitrage
-                                enum_inclinaison_vitrage_id: inclinaison
-                                    du vitrage
-                                enum_type_gaz_lame_id: type de gaz
-                                    présent dans la lame
-                                epaisseur_lame: epaisseur de la lame
-                                vitrage_vir: est ce que le vitrage est à
-                                    isolation renforcée 0 : non 1 : oui
-                                enum_methode_saisie_perf_vitrage_id:
-                                    methode de saisie des
-                                    caractéristiques thermiques des
-                                    vitrage (valeurs forfaitaires ou
-                                    saisies en direct lorsque issu d'un
-                                    justificatif)
-                                ug_saisi: coefficient de transmission
-                                    thermique du vitrage saisi
-                                    directement (nécessite une
-                                    justification)
-                                tv_uw_id: id de la ligne de la table
-                                    utilisée pour le calcul du
-                                    coefficent de transmission thermique
-                                    de la baie uw. Dans le cas d'une
-                                    interpolation/extrapolation prendre
-                                    la valeur tabulée la plus proche
-                                enum_type_materiaux_menuiserie_id: type
-                                    de matériaux des menuiseries
-                                enum_type_baie_id: type de baie
-                                uw_saisi: coefficient de transmission
-                                    thermique de la baie saisi
-                                    directement (nécessite une
-                                    justification)
-                                tv_sw_id: id de la ligne de la table
-                                    utilisée pour le calcul du facteur
-                                    solaire de la baie sw
-                                sw_saisi: facteur solaire de la baie
-                                    saisi directement (nécessite une
-                                    justification)
-                                enum_type_pose_id: type de pose de la
-                                    baie
-                            """
-
-                            tv_ug_id: Optional[int] = field(
-                                default=None,
-                                metadata={
-                                    "type": "Element",
-                                    "min_inclusive": 1,
-                                    "max_inclusive": 181,
-                                    "nillable": True,
-                                },
-                            )
-                            enum_type_vitrage_id: Optional[int] = field(
-                                default=None,
-                                metadata={
-                                    "type": "Element",
-                                    "required": True,
-                                    "min_inclusive": 1,
-                                    "max_inclusive": 6,
-                                },
-                            )
-                            enum_inclinaison_vitrage_id: Optional[int] = field(
-                                default=None,
-                                metadata={
-                                    "type": "Element",
-                                    "required": True,
-                                    "min_inclusive": 1,
-                                    "max_inclusive": 4,
-                                },
-                            )
-                            enum_type_gaz_lame_id: Optional[int] = field(
-                                default=None,
-                                metadata={
-                                    "type": "Element",
-                                    "min_inclusive": 1,
-                                    "max_inclusive": 3,
-                                    "nillable": True,
-                                },
-                            )
-                            epaisseur_lame: Optional[float] = field(
-                                default=None,
-                                metadata={
-                                    "type": "Element",
-                                    "min_exclusive": 0.0,
-                                    "nillable": True,
-                                },
-                            )
-                            vitrage_vir: Optional[SOuiNon] = field(
-                                default=None,
-                                metadata={
-                                    "type": "Element",
-                                    "nillable": True,
-                                },
-                            )
-                            enum_methode_saisie_perf_vitrage_id: Optional[
-                                int
-                            ] = field(
-                                default=None,
-                                metadata={
-                                    "type": "Element",
-                                    "required": True,
-                                    "min_inclusive": 1,
-                                    "max_inclusive": 15,
-                                },
-                            )
-                            ug_saisi: Optional[float] = field(
-                                default=None,
-                                metadata={
-                                    "type": "Element",
-                                    "min_exclusive": 0.0,
-                                    "nillable": True,
-                                },
-                            )
-                            tv_uw_id: Optional[int] = field(
-                                default=None,
-                                metadata={
-                                    "type": "Element",
-                                    "min_inclusive": 1,
-                                    "max_inclusive": 723,
-                                    "nillable": True,
-                                },
-                            )
-                            enum_type_materiaux_menuiserie_id: Optional[
-                                int
-                            ] = field(
-                                default=None,
-                                metadata={
-                                    "type": "Element",
-                                    "required": True,
-                                    "min_inclusive": 1,
-                                    "max_inclusive": 7,
-                                },
-                            )
-                            enum_type_baie_id: Optional[int] = field(
-                                default=None,
-                                metadata={
-                                    "type": "Element",
-                                    "required": True,
-                                    "min_inclusive": 1,
-                                    "max_inclusive": 8,
-                                },
-                            )
-                            uw_saisi: Optional[float] = field(
-                                default=None,
-                                metadata={
-                                    "type": "Element",
-                                    "min_exclusive": 0.0,
-                                    "nillable": True,
-                                },
-                            )
-                            tv_sw_id: Optional[int] = field(
-                                default=None,
-                                metadata={
-                                    "type": "Element",
-                                    "min_inclusive": 1,
-                                    "max_inclusive": 173,
-                                    "nillable": True,
-                                },
-                            )
-                            sw_saisi: Optional[float] = field(
-                                default=None,
-                                metadata={
-                                    "type": "Element",
-                                    "min_exclusive": 0.0,
-                                    "nillable": True,
-                                },
-                            )
-                            enum_type_pose_id: Optional[int] = field(
-                                default=None,
-                                metadata={
-                                    "type": "Element",
-                                    "required": True,
-                                    "min_inclusive": 1,
-                                    "max_inclusive": 4,
-                                },
-                            )
-
-                        @dataclass
-                        class DonneeIntermediaire:
-                            """
-                            Attributes:
-                                ug: Ug final de la baie : soit saisi
-                                    directement soit issu des tables
-                                    forfaitaires
-                                uw: Uw final de la baie : soit saisi
-                                    directement soit issu des tables
-                                    forfaitaires
-                                sw: sw final de la baie: soit saisi
-                                    directement soit issu des tables
-                                    forfaitaires
-                            """
-
-                            ug: Optional[float] = field(
-                                default=None,
-                                metadata={
-                                    "type": "Element",
-                                    "min_exclusive": 0.0,
-                                    "nillable": True,
-                                },
-                            )
-                            uw: Optional[float] = field(
-                                default=None,
-                                metadata={
-                                    "type": "Element",
-                                    "required": True,
-                                    "min_exclusive": 0.0,
-                                },
-                            )
-                            sw: Optional[float] = field(
-                                default=None,
-                                metadata={
-                                    "type": "Element",
-                                    "required": True,
-                                    "min_exclusive": 0.0,
-                                },
-                            )
-
             @dataclass
             class PorteCollection:
                 porte: List["Dpe.Logement.Enveloppe.PorteCollection.Porte"] = (
@@ -3973,9 +3577,6 @@ class Dpe:
                             presence_retour_isolation: y a-t-il un
                                 retour d'isolant de la paroi opaque sur
                                 la porte 0 : non 1 : oui
-                            presence_joint: y a-t-il présence de joints
-                                sur la porte (utilisé pour le calcul de
-                                la perméabilité) 0 : non 1 : oui
                             enum_type_pose_id: type de pose de la porte
                         """
 
@@ -3990,8 +3591,8 @@ class Dpe:
                             default=None,
                             metadata={
                                 "type": "Element",
-                                "required": True,
                                 "max_length": 255,
+                                "nillable": True,
                             },
                         )
                         reference_paroi: Optional[str] = field(
@@ -4120,20 +3721,13 @@ class Dpe:
                                 "nillable": True,
                             },
                         )
-                        presence_joint: Optional[SOuiNon] = field(
-                            default=None,
-                            metadata={
-                                "type": "Element",
-                                "nillable": True,
-                            },
-                        )
                         enum_type_pose_id: Optional[int] = field(
                             default=None,
                             metadata={
                                 "type": "Element",
-                                "required": True,
                                 "min_inclusive": 1,
                                 "max_inclusive": 4,
+                                "nillable": True,
                             },
                         )
 
@@ -4271,8 +3865,8 @@ class Dpe:
                                     default=None,
                                     metadata={
                                         "type": "Element",
-                                        "required": True,
                                         "max_length": 255,
+                                        "nillable": True,
                                     },
                                 )
                                 enum_orientation_id: Optional[int] = field(
@@ -4349,8 +3943,8 @@ class Dpe:
                             default=None,
                             metadata={
                                 "type": "Element",
-                                "required": True,
                                 "max_length": 255,
+                                "nillable": True,
                             },
                         )
                         tv_coef_reduction_deperdition_id: Optional[int] = (
@@ -4504,8 +4098,8 @@ class Dpe:
                             default=None,
                             metadata={
                                 "type": "Element",
-                                "required": True,
                                 "max_length": 255,
+                                "nillable": True,
                             },
                         )
                         reference_1: Optional[str] = field(
@@ -4538,9 +4132,9 @@ class Dpe:
                                 default=None,
                                 metadata={
                                     "type": "Element",
-                                    "required": True,
                                     "min_inclusive": 0.5,
                                     "max_inclusive": 1.0,
+                                    "nillable": True,
                                 },
                             )
                         )
@@ -4698,8 +4292,8 @@ class Dpe:
                         default=None,
                         metadata={
                             "type": "Element",
-                            "required": True,
                             "max_length": 255,
+                            "nillable": True,
                         },
                     )
                     plusieurs_facade_exposee: Optional[SOuiNon] = field(
@@ -4943,8 +4537,8 @@ class Dpe:
                         default=None,
                         metadata={
                             "type": "Element",
-                            "required": True,
                             "max_length": 255,
+                            "nillable": True,
                         },
                     )
                     surface_clim: Optional[float] = field(
@@ -5152,8 +4746,8 @@ class Dpe:
                     default=None,
                     metadata={
                         "type": "Element",
-                        "required": True,
                         "max_length": 255,
+                        "nillable": True,
                     },
                 )
                 presence_production_pv: Optional[SOuiNon] = field(
@@ -5391,13 +4985,6 @@ class Dpe:
                             échantillonée : saisir le nombre de
                             logements qui sont équipés de ce type
                             d'installation d'ECS.
-                        rdim: nombre d'installations identiques. Ce
-                            paramètre est utilisé pour dénombrer les
-                            installations identiques considérées lors
-                            d'un calcul d'échantillonage. Ce nombre peut
-                            être non entier en cas d'application de la
-                            méthode d'échantillonage (pour une
-                            installation sans échantillonage rdim=1)
                         nombre_niveau_installation_ecs: nombre de
                             niveaux desservis par l'installation d'ECS
                             (très souvent égal au nombre de niveaux du
@@ -5437,8 +5024,8 @@ class Dpe:
                         default=None,
                         metadata={
                             "type": "Element",
-                            "required": True,
                             "max_length": 255,
+                            "nillable": True,
                         },
                     )
                     enum_cfg_installation_ecs_id: Optional[int] = field(
@@ -5499,14 +5086,6 @@ class Dpe:
                             "type": "Element",
                             "required": True,
                             "min_exclusive": 0.0,
-                        },
-                    )
-                    rdim: Optional[float] = field(
-                        default=None,
-                        metadata={
-                            "type": "Element",
-                            "min_exclusive": 0.0,
-                            "nillable": True,
                         },
                     )
                     nombre_niveau_installation_ecs: Optional[int] = field(
@@ -5762,33 +5341,7 @@ class Dpe:
                                 identifiant_reseau_chaleur: identifiant
                                     réseau de chaleur ou de froid
                                     utilisé (utilisé à partir du 18
-                                    janvier 2022). Cet identifiant doit
-                                    correspondre à un identifiant
-                                    déclaré dans la liste des réseaux de
-                                    chaleurs spécifiés dans l'arrêté en
-                                    vigueur qui modifie l'annexe 7 de
-                                    l'arrêté du 15 septembre 2006
-                                    relatif au diagnostic de performance
-                                    energétique
-                                date_arrete_reseau_chaleur: date de
-                                    l'arrêté qui modifie l'annexe 7 de
-                                    l'arrêté du 15 septembre 2006
-                                    relatif au diagnostic de performance
-                                    énergétique.
-                                    (https://www.legifrance.gouv.fr/loda/id/JORFTEXT000000788395?isAdvancedResult=&amp;page=3&amp;pageSize=10&amp;query=Arr%C3%AAt%C3%A9+relatif+au+classement+des+r%C3%A9seaux+de+chaleur+et+de+froid&amp;searchField=ALL&amp;searchProximity=&amp;searchType=ALL&amp;tab_selection=all&amp;typePagination=DEFAULT).
-                                    L'arrêté publie la liste des réseaux
-                                    de chaleurs référencés pour le
-                                    calcul du DPE et publie les taux de
-                                    CO2 et ENR associés. La fréquence de
-                                    ces arrêtés est d'une année en
-                                    général mais ils ne sont pas publiés
-                                    à des dates stables. Ce champ est
-                                    obligatoire lorsqu'un réseau de
-                                    chaleur est renseigné. les
-                                    informations sur les arrêtés de
-                                    réseaux de chaleur sont disponibles
-                                    dans
-                                    observatoire_dpe.modele_donnee.arrete_reseau_chaleur.json
+                                    janvier 2022)
                                 tv_reseau_chaleur_id: id de la ligne de
                                     la table utilisée pour le calcul du
                                     contenu CO2 des réseaux de chaleurs
@@ -5828,8 +5381,8 @@ class Dpe:
                                 default=None,
                                 metadata={
                                     "type": "Element",
-                                    "required": True,
                                     "max_length": 255,
+                                    "nillable": True,
                                 },
                             )
                             reference_generateur_mixte: Optional[str] = field(
@@ -5929,16 +5482,6 @@ class Dpe:
                                     "pattern": r"[0-9]{4}[C-F]",
                                     "nillable": True,
                                 },
-                            )
-                            date_arrete_reseau_chaleur: Optional[XmlDate] = (
-                                field(
-                                    default=None,
-                                    metadata={
-                                        "type": "Element",
-                                        "min_inclusive": XmlDate(2021, 10, 21),
-                                        "nillable": True,
-                                    },
-                                )
                             )
                             tv_reseau_chaleur_id: Optional[int] = field(
                                 default=None,
@@ -6231,13 +5774,6 @@ class Dpe:
                             le cas d'un DPE immeuble avec installation
                             de chauffage individuelle. (à ne renseigner
                             que dans ce cas précis)
-                        rdim: nombre d'installations identiques. Ce
-                            paramètre est utilisé pour dénombrer les
-                            installations identiques considérées lors
-                            d'un calcul d'échantillonage. Ce nombre peut
-                            être non entier en cas d'application de la
-                            méthode d'échantillonage (pour une
-                            installation sans échantillonage rdim=1)
                         nombre_niveau_installation_ch: nombre de niveaux
                             desservis par l'installation de chauffage
                             (très souvent égal au nombre de niveaux du
@@ -6288,8 +5824,8 @@ class Dpe:
                         default=None,
                         metadata={
                             "type": "Element",
-                            "required": True,
                             "max_length": 255,
+                            "nillable": True,
                         },
                     )
                     surface_chauffee: Optional[float] = field(
@@ -6301,14 +5837,6 @@ class Dpe:
                         },
                     )
                     nombre_logement_echantillon: Optional[float] = field(
-                        default=None,
-                        metadata={
-                            "type": "Element",
-                            "min_exclusive": 0.0,
-                            "nillable": True,
-                        },
-                    )
-                    rdim: Optional[float] = field(
                         default=None,
                         metadata={
                             "type": "Element",
@@ -6441,7 +5969,7 @@ class Dpe:
                         metadata={
                             "type": "Element",
                             "required": True,
-                            "min_inclusive": 0.0,
+                            "min_exclusive": 0.0,
                         },
                     )
                     besoin_ch_depensier: Optional[float] = field(
@@ -6449,7 +5977,7 @@ class Dpe:
                         metadata={
                             "type": "Element",
                             "required": True,
-                            "min_inclusive": 0.0,
+                            "min_exclusive": 0.0,
                         },
                     )
                     production_ch_solaire: Optional[float] = field(
@@ -6598,8 +6126,8 @@ class Dpe:
                                 default=None,
                                 metadata={
                                     "type": "Element",
-                                    "required": True,
                                     "max_length": 255,
+                                    "nillable": True,
                                 },
                             )
                             surface_chauffee: Optional[float] = field(
@@ -6884,17 +6412,6 @@ class Dpe:
                                 identifiant_reseau_chaleur: identifiant
                                     réseau de chaleur ou de froid
                                     utilisé (utilisé à partir du 18
-                                    janvier 2022). Cet identifiant doit
-                                    correspondre à un identifiant
-                                    déclaré dans la liste des réseaux de
-                                    chaleurs spécifiés dans l'arrêté en
-                                    vigueur qui modifie l'annexe 7 de
-                                    l'arrêté du 15 septembre 2006
-                                    relatif au diagnostic de performance
-                                    energétique
-                                date_arrete_reseau_chaleur: identifiant
-                                    réseau de chaleur ou de froid
-                                    utilisé (utilisé à partir du 18
                                     janvier 2022)
                                 n_radiateurs_gaz: nombre de radiateurs
                                     gaz
@@ -6933,8 +6450,8 @@ class Dpe:
                                 default=None,
                                 metadata={
                                     "type": "Element",
-                                    "required": True,
                                     "max_length": 255,
+                                    "nillable": True,
                                 },
                             )
                             reference_generateur_mixte: Optional[str] = field(
@@ -7048,16 +6565,6 @@ class Dpe:
                                     "pattern": r"[0-9]{4}[C-F]",
                                     "nillable": True,
                                 },
-                            )
-                            date_arrete_reseau_chaleur: Optional[XmlDate] = (
-                                field(
-                                    default=None,
-                                    metadata={
-                                        "type": "Element",
-                                        "min_inclusive": XmlDate(2021, 10, 21),
-                                        "nillable": True,
-                                    },
-                                )
                             )
                             n_radiateurs_gaz: Optional[int] = field(
                                 default=None,
@@ -9790,16 +9297,6 @@ class Dpe:
                                 enduit isolant (Renduit=0,7m².K.W-1) 0 :
                                 non 1 : oui. (Attention ! nom de
                                 propriété pas tout à fait explicite)
-                                OBSOLETE -&gt; remplacé par
-                                enduit_isolant_paroi_ancienne
-                            enduit_isolant_paroi_ancienne: est ce qu'un
-                                enduit isolant est présent sur la paroi
-                                si celle-ci est une paroi ancienne
-                                (pierres, terre, mur à colombage, brique
-                                ancienne)(Renduit=0,7m².K.W-1) 0 : non 1
-                                : oui. (renommage de la propriété
-                                paroi_ancienne -&gt;
-                                enduit_isolant_paroi_ancienne)
                             enum_type_doublage_id: type de doublage
                                 intérieur du mur.(précision de la nature
                                 du doublage ou de l'epaisseur de la lame
@@ -9909,15 +9406,6 @@ class Dpe:
                                 "type": "Element",
                                 "nillable": True,
                             },
-                        )
-                        enduit_isolant_paroi_ancienne: Optional[SOuiNon] = (
-                            field(
-                                default=None,
-                                metadata={
-                                    "type": "Element",
-                                    "nillable": True,
-                                },
-                            )
                         )
                         enum_type_doublage_id: Optional[int] = field(
                             default=None,
@@ -10515,17 +10003,7 @@ class Dpe:
                             enum_type_fermeture_id: type de fermeture
                                 associé à la baie (volets/persiennes
                                 etc..)
-                            presence_protection_solaire_hors_fermeture:
-                                y a-t-il présence de joints sur la baie
-                                (utilisé pour le calcul de la
-                                perméabilité) 0 : non 1 : oui
                             enum_type_pose_id: type de pose de la baie
-                            presence_retour_isolation: y a-t-il un
-                                retour d'isolant de la paroi opaque sur
-                                la baie 0 : non 1 : oui
-                            presence_joint: y a-t-il présence de joints
-                                sur la baie (utilisé pour le calcul de
-                                la perméabilité) 0 : non 1 : oui
                             enum_orientation_id: orientation de la baie
                         """
 
@@ -10682,35 +10160,12 @@ class Dpe:
                                 "nillable": True,
                             },
                         )
-                        presence_protection_solaire_hors_fermeture: Optional[
-                            SOuiNon
-                        ] = field(
-                            default=None,
-                            metadata={
-                                "type": "Element",
-                                "nillable": True,
-                            },
-                        )
                         enum_type_pose_id: Optional[int] = field(
                             default=None,
                             metadata={
                                 "type": "Element",
                                 "min_inclusive": 1,
                                 "max_inclusive": 4,
-                                "nillable": True,
-                            },
-                        )
-                        presence_retour_isolation: Optional[SOuiNon] = field(
-                            default=None,
-                            metadata={
-                                "type": "Element",
-                                "nillable": True,
-                            },
-                        )
-                        presence_joint: Optional[SOuiNon] = field(
-                            default=None,
-                            metadata={
-                                "type": "Element",
                                 "nillable": True,
                             },
                         )
@@ -10875,9 +10330,6 @@ class Dpe:
                             presence_retour_isolation: y a-t-il un
                                 retour d'isolant de la paroi opaque sur
                                 la porte 0 : non 1 : oui
-                            presence_joint: y a-t-il présence de joints
-                                sur la porte (utilisé pour le calcul de
-                                la perméabilité) 0 : non 1 : oui
                             enum_type_pose_id: type de pose de la porte
                         """
 
@@ -10979,13 +10431,6 @@ class Dpe:
                             },
                         )
                         presence_retour_isolation: Optional[SOuiNon] = field(
-                            default=None,
-                            metadata={
-                                "type": "Element",
-                                "nillable": True,
-                            },
-                        )
-                        presence_joint: Optional[SOuiNon] = field(
                             default=None,
                             metadata={
                                 "type": "Element",
@@ -11779,13 +11224,6 @@ class Dpe:
                             échantillonée : saisir le nombre de
                             logements qui sont équipés de ce type
                             d'installation d'ECS.
-                        rdim: nombre d'installations identiques. Ce
-                            paramètre est utilisé pour dénombrer les
-                            installations identiques considérées lors
-                            d'un calcul d'échantillonage. Ce nombre peut
-                            être non entier en cas d'application de la
-                            méthode d'échantillonage (pour une
-                            installation sans échantillonage rdim=1)
                         enum_type_installation_solaire_id: type
                             d'installation solaire (ECS+Chauffage , ECS
                             solaire seule etc…)
@@ -11838,14 +11276,6 @@ class Dpe:
                         },
                     )
                     nombre_logement: Optional[float] = field(
-                        default=None,
-                        metadata={
-                            "type": "Element",
-                            "min_exclusive": 0.0,
-                            "nillable": True,
-                        },
-                    )
-                    rdim: Optional[float] = field(
                         default=None,
                         metadata={
                             "type": "Element",
@@ -12007,33 +11437,7 @@ class Dpe:
                                 identifiant_reseau_chaleur: identifiant
                                     réseau de chaleur ou de froid
                                     utilisé (utilisé à partir du 18
-                                    janvier 2022). Cet identifiant doit
-                                    correspondre à un identifiant
-                                    déclaré dans la liste des réseaux de
-                                    chaleurs spécifiés dans l'arrêté en
-                                    vigueur qui modifie l'annexe 7 de
-                                    l'arrêté du 15 septembre 2006
-                                    relatif au diagnostic de performance
-                                    energétique
-                                date_arrete_reseau_chaleur: date de
-                                    l'arrêté qui modifie l'annexe 7 de
-                                    l'arrêté du 15 septembre 2006
-                                    relatif au diagnostic de performance
-                                    énergétique.
-                                    (https://www.legifrance.gouv.fr/loda/id/JORFTEXT000000788395?isAdvancedResult=&amp;page=3&amp;pageSize=10&amp;query=Arr%C3%AAt%C3%A9+relatif+au+classement+des+r%C3%A9seaux+de+chaleur+et+de+froid&amp;searchField=ALL&amp;searchProximity=&amp;searchType=ALL&amp;tab_selection=all&amp;typePagination=DEFAULT).
-                                    L'arrêté publie la liste des réseaux
-                                    de chaleurs référencés pour le
-                                    calcul du DPE et publie les taux de
-                                    CO2 et ENR associés. La fréquence de
-                                    ces arrêtés est d'une année en
-                                    général mais ils ne sont pas publiés
-                                    à des dates stables. Ce champ est
-                                    obligatoire lorsqu'un réseau de
-                                    chaleur est renseigné. les
-                                    informations sur les arrêtés de
-                                    réseaux de chaleur sont disponibles
-                                    dans
-                                    observatoire_dpe.modele_donnee.arrete_reseau_chaleur.json
+                                    janvier 2022)
                             """
 
                             description: Optional[str] = field(
@@ -12142,16 +11546,6 @@ class Dpe:
                                     "pattern": r"[0-9]{4}[C-F]",
                                     "nillable": True,
                                 },
-                            )
-                            date_arrete_reseau_chaleur: Optional[XmlDate] = (
-                                field(
-                                    default=None,
-                                    metadata={
-                                        "type": "Element",
-                                        "min_inclusive": XmlDate(2021, 10, 21),
-                                        "nillable": True,
-                                    },
-                                )
                             )
 
                         @dataclass
@@ -12325,13 +11719,6 @@ class Dpe:
                             appartement à partir de l'immeuble c'est la
                             surface de l'installation à l'immeuble qu'il
                             faut renseigner
-                        rdim: nombre d'installations identiques. Ce
-                            paramètre est utilisé pour dénombrer les
-                            installations identiques considérées lors
-                            d'un calcul d'échantillonage. Ce nombre peut
-                            être non entier en cas d'application de la
-                            méthode d'échantillonage (pour une
-                            installation sans échantillonage rdim=1)
                         enum_cfg_installation_ch_id: configuration de
                             l'installation de chauffage
                         enum_type_installation_id: type d'installation
@@ -12355,14 +11742,6 @@ class Dpe:
                         },
                     )
                     surface_chauffee: Optional[float] = field(
-                        default=None,
-                        metadata={
-                            "type": "Element",
-                            "min_exclusive": 0.0,
-                            "nillable": True,
-                        },
-                    )
-                    rdim: Optional[float] = field(
                         default=None,
                         metadata={
                             "type": "Element",
@@ -12407,7 +11786,7 @@ class Dpe:
                         default=None,
                         metadata={
                             "type": "Element",
-                            "min_inclusive": 0.0,
+                            "min_exclusive": 0.0,
                             "nillable": True,
                         },
                     )
@@ -12622,17 +12001,6 @@ class Dpe:
                                 identifiant_reseau_chaleur: identifiant
                                     réseau de chaleur ou de froid
                                     utilisé (utilisé à partir du 18
-                                    janvier 2022). Cet identifiant doit
-                                    correspondre à un identifiant
-                                    déclaré dans la liste des réseaux de
-                                    chaleurs spécifiés dans l'arrêté en
-                                    vigueur qui modifie l'annexe 7 de
-                                    l'arrêté du 15 septembre 2006
-                                    relatif au diagnostic de performance
-                                    energétique
-                                date_arrete_reseau_chaleur: identifiant
-                                    réseau de chaleur ou de froid
-                                    utilisé (utilisé à partir du 18
                                     janvier 2022)
                                 n_radiateurs_gaz: nombre de radiateurs
                                     gaz
@@ -12722,16 +12090,6 @@ class Dpe:
                                     "pattern": r"[0-9]{4}[C-F]",
                                     "nillable": True,
                                 },
-                            )
-                            date_arrete_reseau_chaleur: Optional[XmlDate] = (
-                                field(
-                                    default=None,
-                                    metadata={
-                                        "type": "Element",
-                                        "min_inclusive": XmlDate(2021, 10, 21),
-                                        "nillable": True,
-                                    },
-                                )
                             )
                             n_radiateurs_gaz: Optional[int] = field(
                                 default=None,
