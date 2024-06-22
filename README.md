@@ -44,6 +44,11 @@ On utilise un DPE [n° 2344E0308327N](https://observatoire-dpe-audit.ademe.fr/af
 ````
 
 
+## Dev
+
+* see [RUFF](https://docs.astral.sh/ruff/)
+* see [BLACK](https://github.com/psf/black?tab=readme-ov-file)
+* see [TYPER](https://typer.tiangolo.com)
 
 
 

@@ -1,10 +1,11 @@
 from urllib.request import urlopen
 import pyrfc6266
 import requests
-import model_generator as mg
 from streamlit_datalist import stDatalist
 from collections import OrderedDict 
 import yaml
+import models
+from .settings import DPE_VERSION
 
 def download_xmlstring(dpe_id:str, file_path:str=None) -> str:
     """Télécharge le xml d'un DPE à partir de son ID depuis la plateforme 
@@ -28,6 +29,7 @@ def download_xmlstring(dpe_id:str, file_path:str=None) -> str:
             f.write(xmlstring)
 
     return xmlstring
+
 
 def get_xmltree(xmlstring:str):
     """Obtient les identifiants du DPE et le numéro de version et retourne 
@@ -59,6 +61,7 @@ def load_model(xmltree, enum_version_id):
     
     from xsdata.formats.dataclass.parsers import XmlParser 
     import models.dpe_v2
+    import models.dpe_v2
     import models.dpe_v2_2
     import models.dpe_v2_3
     import models.dpe_v2_4
@@ -74,7 +77,7 @@ def load_model(xmltree, enum_version_id):
     else:
         raise Exception(
             f"La version {enum_version_id} du DPE n'est pas prise en charge. \
-                Seuls les versions suivantes sont prise en charge : {','.join(mg.DPE_VERSIONS)}")
+                Seuls les versions suivantes sont prise en charge : {','.join(DPE_VERSION)}")
     
     # do some cleaning ...
     # sinon erreur lors de la déserialization xml > dataclass

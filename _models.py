@@ -10,13 +10,12 @@
 
 import os
 import subprocess
+import dpe.settings as settings
 
-DPE_VERSIONS = ["2", "2.2", "2.3", "2.4"]
-AUDIT_VERSION = ["v2.0", "v2.1", "regv1.1", "regv1.2"]
 
 def generate_dpe_models(version_ids):
 
-    for v in DPE_VERSIONS:
+    for v in settings.DPE_VERSION:
     # for v in ["2.4"]:
 
         schema_path = f"assets/schemas/DPEv{v}.xsd"
@@ -32,13 +31,13 @@ def generate_dpe_models(version_ids):
             schema_path
             ])
         
-        os.replace(f"{model_filename}.py", f"models/{model_filename}.py")
+        os.replace(f"{model_filename}.py", f"dpe/models/{model_filename}.py")
         os.remove("__init__.py")
 
 
 if __name__ == "__main__":
 
-    generate_dpe_models(DPE_VERSIONS)
+    generate_dpe_models(settings.DPE_VERSION)
 
 
 

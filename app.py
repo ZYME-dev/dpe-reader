@@ -1,6 +1,6 @@
 import streamlit as st
 import requests
-import model_generator as mg
+import _models as mg
 from streamlit_datalist import stDatalist
 from collections import OrderedDict 
 import yaml
