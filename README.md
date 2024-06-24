@@ -50,6 +50,8 @@ On utilise un DPE [n° 2344E0308327N](https://observatoire-dpe-audit.ademe.fr/af
 * see [MYPY](https://github.com/python/mypy)
 
 
+[VSCODE Python](https://xebia.com/blog/setting-python-source-folders-vscode/)
+
 [Packaging](https://packaging.python.org/en/latest/tutorials/packaging-projects/)
 
 ### imports
