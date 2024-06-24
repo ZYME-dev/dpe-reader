@@ -41,15 +41,22 @@ xsdata assets/DPEv2.2.xsd --output pydantic --package models_pydantic --structur
 
 On utilise un DPE [n° 2344E0308327N](https://observatoire-dpe-audit.ademe.fr/afficher-dpe/2344E0308327N) récupéré sur le site de l'observatoire.
 
-````
-
 
 ## Dev
 
 * see [RUFF](https://docs.astral.sh/ruff/)
 * see [BLACK](https://github.com/psf/black?tab=readme-ov-file)
 * see [TYPER](https://typer.tiangolo.com)
+* see [MYPY](https://github.com/python/mypy)
 
 
+[Packaging](https://packaging.python.org/en/latest/tutorials/packaging-projects/)
 
+### imports
+
+absolute / relative
+
+[The Definitive Guide to Python import Statements](https://chrisyeh96.github.io/2017/08/08/definitive-guide-python-imports.html)
+
+https://iq-inc.com/importerror-attempted-relative-import/
 

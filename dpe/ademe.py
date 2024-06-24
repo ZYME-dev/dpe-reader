@@ -1,3 +1,7 @@
+import sys
+for p in sys.path:
+    print(p)
+
 from urllib.request import urlopen
 import pyrfc6266
 import requests
@@ -5,7 +9,7 @@ from streamlit_datalist import stDatalist
 from collections import OrderedDict 
 import yaml
 import models
-from .settings import DPE_VERSION
+from settings import DPE_VERSION
 
 def download_xmlstring(dpe_id:str, file_path:str=None) -> str:
     """Télécharge le xml d'un DPE à partir de son ID depuis la plateforme 
@@ -102,6 +106,9 @@ def load_model(xmltree, enum_version_id):
 
 
 if __name__ == "__main__":
+
+    for p in sys.path:
+        print(p)
 
     # dpe_id = '2344E0308327N' # v2.2
     dpe_id = '2369E3640698P' # v2.3  
