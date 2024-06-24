@@ -1,30 +1,59 @@
 import streamlit as st
 import requests
 import _models as mg
-from streamlit_datalist import stDatalist
 from collections import OrderedDict 
-import yaml
-import modules.ademe as ademe
+import json
+import dpe.ademe as ademe
+import pandas as pd
+from datetime import datetime
 
+@st.cache_data
 def get_samples():
 
-    with open('assets/samples/_index.yaml', 'r') as f:
-        samples = yaml.load(f, Loader=yaml.SafeLoader)
-    st.write(samples)
-    return samples
-    
+    with open('assets/samples/_index.json', 'r') as f:
+        data = json.loads(f.read())
 
+        date_format = "%Y-%m-%d"
+        rows = []
+        for id, info in data.items():
+            rows.append([
+                info["numero_dpe"],
+                info["statut"],
+                info["enum_version_id"],
+                datetime.strptime(info["date_visite_diagnostiqueur"], date_format).date(),   
+                datetime.strptime(info["date_etablissement_dpe"], date_format).date(),
+                info["surface_habitable_logement"]])
+        df = pd.DataFrame(rows, columns=["Id","Statut", "Version", "Date Visite", "Date DPE", "SHAB"])
+        return df
+    
 st.title("DPE")
 
 st.caption("pour obtenir les informations d'un DPE, saisissez son numéro d'identification")
 
-dpe_ids = '2369E3640698P' # v2.3
-dpe_id = '2344E0308327N' # v2.2
-dpe_id = st.text_input("Numéro de DPE", value=dpe_id)
-get_samples()
+st.header("Choisir un DPE")
 
-selection = stDatalist("This datalist is...", ["great", "cool", "neat"])
-st.write(selection)
+dpe_id = '2369E3640698P' # v2.3
+dpe_id = st.text_input("Numéro de DPE", value=dpe_id)
+
+
+samples = get_samples()
+event = st.dataframe(
+        samples,
+        use_container_width=True,
+        hide_index=True,
+        on_select="rerun",
+        selection_mode="single-row",
+    )
+
+if len(event.selection.rows) > 0:
+    index = event.selection.rows[0]
+    dpe_id = samples.iat[index,0]
+else:
+    index = None
+    dpe_id = None
+
+st.write("Numéro de DPE : ", dpe_id)
+
 
 b = st.button("Obtenir")
 

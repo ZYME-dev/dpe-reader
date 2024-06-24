@@ -1,15 +1,8 @@
-import sys
-for p in sys.path:
-    print(p)
-
 from urllib.request import urlopen
 import pyrfc6266
-import requests
 from streamlit_datalist import stDatalist
-from collections import OrderedDict 
-import yaml
-import models
 from settings import DPE_VERSION
+from lxml import etree
 
 def download_xmlstring(dpe_id:str, file_path:str=None) -> str:
     """Télécharge le xml d'un DPE à partir de son ID depuis la plateforme 
@@ -29,7 +22,7 @@ def download_xmlstring(dpe_id:str, file_path:str=None) -> str:
     xmlstring = data.read()
 
     if file_path != None:
-        with open(file_path) as f:
+        with open(file_path, 'wb+') as f:
             f.write(xmlstring)
 
     return xmlstring
@@ -46,8 +39,6 @@ def get_xmltree(xmlstring:str):
         - les nodes 'status' et 'numero_dpe' qui ne sont pas conforme au model
         - les nodes 'data_complementaires' qui provoquent une erreur lors du parse
     """
-
-    from lxml import etree
 
     xmltree = etree.ElementTree(etree.fromstring(xmlstring))
     root = xmltree.getroot()
@@ -99,34 +90,10 @@ def load_model(xmltree, enum_version_id):
     
     # parse xmltree to model
     parser = XmlParser()
-    file_path = f"assets/{dpe_id}.xml"
     model = parser.parse(xmltree, Dpe)
 
     return model
 
 
-if __name__ == "__main__":
-
-    for p in sys.path:
-        print(p)
-
-    # dpe_id = '2344E0308327N' # v2.2
-    dpe_id = '2369E3640698P' # v2.3  
-
-    xmlstring = download_xmlstring(dpe_id)
-    numero_dpe, statut, enum_version_id, xmltree = get_xmltree(xmlstring)
-    
-    model = load_model(xmltree, enum_version_id)
-
-    for child in xmltree.getroot():
-            print(child)
-
-    print(f"N°      : {numero_dpe}")
-    print(f"Version : {enum_version_id}")
-    print(f"Statut  : {statut}")
-
-    murs = model.logement.enveloppe.mur_collection.mur
-    for mur in murs:
-        print(mur.donnee_entree.surface_paroi_totale)
 
 
