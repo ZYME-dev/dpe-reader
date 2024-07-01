@@ -28,6 +28,12 @@ def download_xmlstring(dpe_id:str, file_path:str=None) -> str:
     return xmlstring
 
 
+def open_xmlstring(file_path:str=None) -> str:
+
+    with open(file_path, 'rb') as f:
+        return f.read()
+
+
 def get_xmltree(xmlstring:str):
     """Obtient les identifiants du DPE et le numéro de version et retourne 
     le xml sous forme de xmltree (lxml).

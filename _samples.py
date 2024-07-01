@@ -1,16 +1,18 @@
 """
     Script pour télécharger et indexer les cas tests
 """
-
 import os
 import os.path
 import sys
+
+print("path ....")
+for p in sys.path: print(p)
+
 import dpe.ademe as ademe
 import loguru
 import json
 from collections import OrderedDict
 from datetime import datetime
-
 
 if __name__ == "__main__":
 
@@ -51,7 +53,6 @@ if __name__ == "__main__":
             "nombre_niveau_logement": nombre_niveau_logement,
         }
         print(id)
-
 
     with open("./assets/samples/index.json", "w+") as f:
         json.dump(index, f, indent=4)
