@@ -12,19 +12,22 @@ def download_xmlstring(dpe_id: str, file_path: str = None) -> str:
     # https://stackoverflow.com/questions/2795331/python-download-without-supplying-a-filename
 
     url = f"https://observatoire-dpe-audit.ademe.fr/pub/dpe/{dpe_id}/xml"
-    headers = {
-        "Accept": "text/xml",
-    }
 
     data = urlopen(url)
-    info = data.info()
-    filename = pyrfc6266.parse_filename(info["Content-Disposition"])
+    # info = data.info()
+    # filename = pyrfc6266.parse_filename(info["Content-Disposition"])
     xmlstring = data.read()
 
-    if file_path != None:
+    if file_path is not None:
         with open(file_path, "wb+") as f:
             f.write(xmlstring)
 
+    return xmlstring
+
+
+def load_xmlstring(file_path: str = None) -> str:
+    with open(file_path, "wb+") as f:
+        xmlstring = f.read()
     return xmlstring
 
 
