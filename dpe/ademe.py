@@ -2,6 +2,7 @@ from urllib.request import urlopen
 import pyrfc6266
 from settings import DPE_VERSION
 from lxml import etree
+import xml.dom.minidom
 
 
 def download_xmlstring(dpe_id: str, file_path: str = None) -> str:
@@ -19,8 +20,9 @@ def download_xmlstring(dpe_id: str, file_path: str = None) -> str:
     xmlstring = data.read()
 
     if file_path is not None:
-        with open(file_path, "wb+") as f:
-            f.write(xmlstring)
+        with open(file_path, "w+") as f:
+            dom = xml.dom.minidom.parseString(xmlstring)
+            f.write(dom.toprettyxml(indent=' '*2))
 
     return xmlstring
 

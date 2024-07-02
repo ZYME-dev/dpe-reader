@@ -2,18 +2,20 @@
 Script pour télécharger et indexer les cas tests
 """
 
-import dpe.ademe as ademe
-import loguru
 import json
 from collections import OrderedDict
+
+import loguru
 import xmltodict
+
+import dpe.ademe as ademe
 
 if __name__ == "__main__":
 
-    file = "_list_open3CL.txt"
+    # file = "_list_open3CL.txt"
     file = "_list.txt"
     
-    DOWNLOAD = False
+    DOWNLOAD = True
     PERSIST = True
 
     with open(f"./assets/samples/{file}") as f:
